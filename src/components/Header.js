@@ -5,8 +5,15 @@ import {
   SearchIcon,
   ShoppingCartIcon,
 } from "@heroicons/react/outline";
+import { signIn, signOut, useSession } from "next-auth/client";
+import { useRouter } from "next/router";
+import { selectItems } from "../slices/basketSlice";
+import { useSelector } from "react-redux";
 
 function Header() {
+  const [session] = useSession();
+  const router = useRouter();
+  const items = useSelector(selectItems);
   return (
     <header>
       <div className="flex items-center bg-amazon_blue p-1 flex-grow py-2">
@@ -17,6 +24,7 @@ function Header() {
             height="40"
             objectFit="contain"
             className="cursor-pointer"
+            onClick={() => router.push("/")}
           />
         </div>
         <div className="hidden sm:flex item-center rounded-md flex-grow cursor-pointor h-10 bg-yellow-400 hover:bg-yellow-500">
@@ -29,17 +37,20 @@ function Header() {
           <SearchIcon className="h-12 p-4" />
         </div>
         <div className="text-white flex items-center text-xs space-x-6 mx-6 whitespace-nowrap ">
-          <div className="link">
-            <p>Hello Subin</p>
+          <div onClick={!session ? signIn : signOut} className="link">
+            <p>{session ? `Hello ${session.user.name}` : "Sign In"}</p>
             <p className="font-extrabold md:text-sm">Account & Lists</p>
           </div>
           <div className="link">
             <p>Returns</p>
             <p className="font-extrabold md:text-sm">& Orders</p>
           </div>
-          <div className="relative flex items-center link">
+          <div
+            onClick={() => router.push("/checkout")}
+            className="relative flex items-center link"
+          >
             <span className="absolute right-0 top-0 md:right-10 h-4 w-4 bg-yellow-400 text-black font-bold     text-center rounded-full">
-              0
+              {items.length}
             </span>
             <ShoppingCartIcon className="h-10" />
             <p className="font-extrabold md:text-sm hidden md:inline mt-2">
@@ -48,10 +59,10 @@ function Header() {
           </div>
         </div>
       </div>
-    <div className="flex items-center space-x-2 pd-2 pl-1 bg-amazon_blue-light text-white text-sm">
+      <div className="flex items-center space-x-2 pd-2 pl-1 bg-amazon_blue-light text-white text-sm">
         <p className="flex link items-center">
-            <MenuIcon className="h-6 mr-1"/>
-            All
+          <MenuIcon className="h-6 mr-1" />
+          All
         </p>
         <p className="link">Prime Video</p>
         <p className="link">Amazon Business</p>
@@ -62,8 +73,7 @@ function Header() {
         <p className="link hidden lg:inline-flex">Buy Again</p>
         <p className="link hidden lg:inline-flex">Shopper toolkit</p>
         <p className="link hidden lg:inline-flex">Health & Personal Care</p>
-    </div>
-    
+      </div>
     </header>
   );
 }
